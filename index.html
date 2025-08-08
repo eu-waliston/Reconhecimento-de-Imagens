@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Teste Reconhecimento de Imagens</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      max-width: 600px;
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    #preview, #resultado {
+      margin-top: 1rem;
+      max-width: 100%;
+      border: 1px solid #ccc;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+    }
+    #status {
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Reconhecimento de Imagens - Upload</h1>
+  <input type="file" id="inputImagem" accept="image/*" />
+  <br />
+  <img id="preview" alt="Pré-visualização da imagem" />
+  <br />
+  <button id="btnEnviar">Enviar para análise</button>
+  <div id="status"></div>
+  <h2>Imagem com bounding boxes:</h2>
+  <img id="resultado" alt="Resultado com bounding boxes" />
+
+  <script>
+    const inputImagem = document.getElementById("inputImagem");
+    const preview = document.getElementById("preview");
+    const btnEnviar = document.getElementById("btnEnviar");
+    const status = document.getElementById("status");
+    const resultado = document.getElementById("resultado");
+
+    // Mostrar preview local da imagem
+    inputImagem.addEventListener("change", () => {
+      const file = inputImagem.files[0];
+      if (!file) {
+        preview.src = "";
+        return;
+      }
+      preview.src = URL.createObjectURL(file);
+      resultado.src = "";
+      status.textContent = "";
+    });
+
+    btnEnviar.addEventListener("click", async () => {
+      if (!inputImagem.files[0]) {
+        alert("Selecione uma imagem primeiro!");
+        return;
+      }
+
+      status.textContent = "Enviando imagem para análise...";
+      resultado.src = "";
+
+      const formData = new FormData();
+      formData.append("imagem", inputImagem.files[0]);
+
+      try {
+        const res = await fetch("http://localhost:1337/analisar/upload/draw", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          status.textContent = `Erro: ${errData.erro || res.statusText}`;
+          return;
+        }
+
+        const blob = await res.blob();
+        resultado.src = URL.createObjectURL(blob);
+        status.textContent = "Análise concluída!";
+      } catch (error) {
+        status.textContent = "Erro ao enviar a imagem.";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
