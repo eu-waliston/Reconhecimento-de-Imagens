@@ -43,3 +43,29 @@ microservico-reconhecimento/
 │-- package.json
 │-- index.js
 │-- uploads/      # Pasta temporária para imagens enviadas
+
+# ▶️ Como rodar com Docker
+
+1️⃣ Construir a imagem
+
+```
+docker build -t microservico-reconhecimento .
+```
+2️⃣ Rodar o container
+
+```
+docker run -p 3000:3000 microservico-reconhecimento
+```
+
+3️⃣ O serviço vai estar acessível em:
+```
+http://localhost:3000
+```
+
+## 💡 Dica extra:
+
+Se você quiser que a pasta uploads/ seja persistida fora do container (útil para debug), rode assim:
+
+```
+docker run -p 3000:3000 -v $(pwd)/uploads:/app/uploads microservico-reconhecimento
+```
